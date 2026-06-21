@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة اختبار العلوم - مسابقة التنظيم والإدارة</title>
+    <style>
+        :root {
+            --primary-color: #0078d4;
+            --secondary-color: #201f1e;
+            --bg-color: #f3f2f1;
+            --card-bg: #ffffff;
+            --success-color: #107c41;
+            --error-color: #a80000;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--secondary-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .credits {
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .timer {
+            color: var(--error-color);
+            font-size: 18px;
+        }
+
+        .question-box {
+            display: none;
+        }
+
+        .question-box.active {
+            display: block;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .option-item {
+            background: #f8f9fa;
+            border: 2px solid #e1e1e1;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+
+        .option-item:hover {
+            background: #f0f4f8;
+            border-color: var(--primary-color);
+        }
+
+        .option-item.selected {
+            background: #e1dfdd;
+            border-color: #a19f9d;
+        }
+
+        .footer-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        btn, button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #005a9e;
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .result-screen.active {
+            display: block;
+        }
+
+        .score {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            background-color: #25D366;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .whatsapp-btn:hover {
+            background-color: #128C7E;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>الاختبار الإلكتروني التفاعلي لمحاكاة مسابقة معلم مساعد (تخصص علوم)</h1>
+        <p class="credits">إعداد: مستر محمد & مس نورهان إبراهيم</p>
+    </div>
+
+    <div id="start-screen" style="text-align: center; padding: 20px;">
+        <p style="font-size: 18px; line-height: 1.6;">مرحباً بك في الاختبار المحاكي لمنظومة جهاز التنظيم والإدارة.<br>
+        يتكون الاختبار من <b>50 سؤالاً</b> اختيارياً في (الكيمياء العضوية، الفيزياء، الأحياء، والجيولوجيا).<br>
+        زمن الإجابة المحدد لكل سؤال هو <b>30 ثانية فقط</b>، وينتقل السؤال تلقائياً عند انتهاء الوقت.</p>
+        <button onclick="startQuiz()">ابدأ الاختبار الآن</button>
+    </div>
+
+    <div id="quiz-area" style="display: none;">
+        <div class="meta-info">
+            <div>السؤال: <span id="current-q-num">1</span> / 50</div>
+            <div class="timer">الوقت المتبقي: <span id="time-left">30</span> ثانية</div>
+        </div>
+
+        <div id="questions-container"></div>
+
+        <div class="footer-buttons">
+            <button id="next-btn" onclick="nextQuestion()">السؤال التالي</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-screen">
+        <h2>انتهى الاختبار!</h2>
+        <p>لقد أتممت اختبار محاكاة العلوم بنجاح.</p>
+        <div class="score" id="final-score">0 / 50</div>
+        <p id="feedback-text"></p>
+        
+        <a href="https://wa.me/201034967016" target="_blank" class="whatsapp-btn">
+            تواصل معنا عبر الواتساب للاستفسارات والدعم
+        </a>
+    </div>
+</div>
+
+<script>
+    // بنك الأسئلة المكون من 50 سؤالاً متوازناً للتخصص
+    const questionsData = [
+        // الكيمياء العضوية (1-13)
+        { q: "ما هو المركب الناتج من الهيدرة الحفزية للإيثاين؟", o: ["الإيثانول", "الأسيتالدهيد", "حمض الأسيتيك", "الإيثان"], a: 1 },
+        { q: "الهيدروكربون المشبع الذي يحتوي على 5 ذرات كربون يكون له كم أيزومر؟", o: ["3 أيزومرات", "2 أيزومر", "4 أيزومرات", "5 أيزومرات"], a: 0 },
+        { q: "تتم عملية تحويل الزيوت السائلة إلى دهون صلبة عن طريق عملية التفاعل مع الكاشف المناسب وهي غاز الهيدروجين، وتسمى بـ:", o: ["الأكسدة", "الهدرجة", "البلمرة", "التحلل المائي"], a: 1 },
+        { q: "ما هي الصيغة العامة للألكانات الحلقية؟", o: ["CnH2n+2", "CnH2n-2", "CnH2n", "CnHn"], a: 2 },
+        { q: "يسمى المركب المترتب من تفاعل الفينول مع حمض النيتريك بـ:", o: ["حمض البكريك", "الأسبرين", "الTNT", "البنزاميد"], a: 0 },
+        { q: "المجموعة الوظيفية المميزة للكحولات هي مجموعة:", o: ["الكربونيل", "الهيدروكسيل", "الكربوكسيل", "الإستر"], a: 1 },
+        { q: "ينتج عند تفاعل حمض عضوي مع كحول مركب يحتوي على مجموعة وظيفية مميزة، هذا المركب هو:", o: ["إيثر", "كيتون", "إستر", "ألديهيد"], a: 2 },
+        { q: "تعتبر الرابطة بين ذرات الكربون في جزيء الإيثين (C2H4) رابطة:", o: ["أحادية فقط", "ثنائية (واحدة سيجما والأخرى باي)", "ثنائية (كلتاهما باي)", "ثلاثية"], a: 1 },
+        { q: "اسم الأيوباك (IUPAC) للمركب المسمى شائعاً بـ 'الكلوروفورم' هو:", o: ["ثنائي كلورو ميثان", "ثلاثي كلورو ميثان", "رباعي كلورو ميثان", "كلورو إيثان"], a: 1 },
+        { q: "ما هو ناتج أكسدة الكحولات الثانوية؟", o: ["الألدهيدات", "الأحماض الكربوكسيلية", "الكيتونات", "الإسترات"], a: 2 },
+        { q: "تنتج الغازات البترولية المسالة المستعملة كوقود في المنازل (البوتجاز) من خليط غازي:", o: ["الميثان والإيثان", "البروبان والبيوتان", "الإيثين والبروبين", "الهكسان والهبتان"], a: 1 },
+        { q: "أي المركبات التالية لا يزيل لون ماء البروم الأحمر؟", o: ["الإيثين", "الإيثاين", "الإيثان", "البروبين"], a: 2 },
+        { q: "الصيغة الكيميائية للبنزين العطري هي:", o: ["C6H12", "C6H6", "C6H14", "C5H5"], a: 1 },
+
+        // الفيزياء (14-26)
+        { q: "ما هي وحدة قياس المقاومة النوعية لموصل؟", o: ["أوم", "أوم . متر", "أوم / متر", "فولت / أمبير"], a: 1 },
+        { q: "إذا زاد نصف قطر سلك معدني إلى الضعف مع ثبوت طوله، فإن مقاومته الكهربائية:", o: ["تقل إلى النصف", "تزداد للضعف", "تقل إلى الربع", "تزداد لأربعة أمثال"], a: 2 },
+        { q: "تعتمد فكرة عمل أفران الحث على:", o: ["التيارات الدوامية", "التأثير المغناطيسي للتيار", "الحث المتبادل", "الظاهرة الكهروضوئية"], a: 0 },
+        { q: "ظاهرة انبعاث الإلكترونات من سطح معدن عند سقوط ضوء ذو تردد مناسب عليه تسمى:", o: ["كولوم", "التأثير الكهروضوئي", "تأثير كومبتون", "الانبعاث المستحث"], a: 1 },
+        { q: "شاشات التلفزيون القديمة تعتمد في عملها على أنبوبة:", o: ["أشعة إكس", "أشعة الكاثود (CRT)", "ليزر الهيليوم نيون", "الخلية الكهروضوئية"], a: 1 },
+        { q: "سرعة الموجات الكهرومغناطيسية في الفراغ تساوي تقريباً:", o: ["3×10^6 م/ث", "3×10^8 م/ث", "3×10^10 م/ث", "1.5×10^8 م/ث"], a: 1 },
+        { q: "يستخدم جهاز الفولتمتر في الدوائر الكهربائية لقياس:", o: ["شدة التيار"، "فرق الجهد"، "المقاومة الكهربائية"، "كمية الشحنة"], a: 1 },
+        { q: "تتحرك فوتونات أشعة ليزر بشكل تميزه خاصية:", o: ["التشتت والتباعد", "الترابط والاتساق الطوري", "اختلاف السرعة", "تعدد الأطوال الموجية"], a: 1 },
+        { q: "قانون نيوتن الثاني يربط بشكل مباشر بين:", o: ["الكتلة والسرعة", "القوة والعجلة", "الشغل والطاقة", "المسافة والزمن"], a: 1 },
+        { q: "عند انتقال موجة ضوئية من وسط أقل كثافة ضوئية إلى وسط أعلى كثافة ضوئية فإن:", o: ["سرعتها تزداد", "ترددها يزداد", "سرعتها تقل والطول الموجي يقل", "ترددها يقل"], a: 2 },
+        { q: "الجهاز المستخدم لتحويل الطاقة الحركية (الميكانيكية) إلى طاقة كهربائية هو:", o: ["المحرك الكهربائي", "المحول الكهربائي", "الدينامو", "الأميتر"], a: 2 },
+        { q: "يقاس الضغط الجوي في النظام الدولي بوحدة الباسكال، والتي تكافئ:", o: ["نيوتن / متر", "نيوتن . متر", "نيوتن / متر مربع", "جول / متر"], a: 2 },
+        { q: "ظاهرة حيد الضوء تثبت أن للضوء طبيعة:", o: ["جسيمية", "موجية", "كهربائية ساكنة", "حرارية متصلة"], a: 1 },
+
+        // الأحياء (27-39)
+        { q: "أي العضيات التالية في الخلية تعتبر هي المسؤولة عن إنتاج الطاقة (ATP)؟", o: ["الريبوسومات", "جهاز جولجي", "الميتوكوندريا", "البلاستيدات الخضراء"], a: 2 },
+        { q: "الهرمون المسؤول عن خفض مستوى السكر في دم الإنسان هو:", o: ["الجلوكاجون", "الأدرينالين", "الثايروكسين", "الإنسولين"], a: 3 },
+        { q: "تتم عملية البناء الضوئي في النباتات داخل البلاستيدات الخضراء وتحديداً يتم امتصاص الضوء بواسطة صبغة:", o: ["الكلوروفيل", "الكاروتين", "الزانثوفيل", "الفيكوبيلين"], a: 0 },
+        { q: "كم عدد الكروموسومات في الخلية الجسدية للإنسان الطبيعي؟", o: ["23 كروموسوم", "46 كروموسوم", "92 كروموسوم", "44 كروموسوم"], a: 1 },
+        { q: "فصيلة الدم التي
